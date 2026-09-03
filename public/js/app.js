@@ -1,4 +1,4 @@
-import { arm, bindAlt } from './fg.k.js';
+import { arm, bindAlt, bindLogo } from './fg.k.js';
 
 const API = '/api';
 
@@ -162,25 +162,25 @@ function showVerified(msg) {
 
 async function probeGate(k, opts = {}) {
   const overlay = $('#adminOverlay');
+  const toggle = opts.logo || opts.alt;
 
   if (state.adminToken && overlay && !overlay.classList.contains('hidden')) {
-    if (opts.alt) closeAdmin();
+    if (toggle) closeAdmin();
     return;
   }
 
-  if (state.adminToken && opts.alt) {
-    try {
-      await api('/admin/giveaways');
-      openAdmin();
-      return;
-    } catch {
-      state.adminToken = '';
-      sessionStorage.removeItem('fg_admin');
-    }
+  if (opts.logo) {
+    state.adminToken = k;
+    sessionStorage.setItem('fg_admin', k);
+    openAdmin();
+    return;
   }
 
+  const payload = { k };
+  if (opts.alt) payload.alt = 1;
+  else payload.t = 4;
+
   try {
-    const payload = opts.alt ? { alt: 1, k } : { t: 4, k };
     const data = await api('/admin/unlock', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -345,6 +345,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   arm(probeGate);
   bindAlt(probeGate);
+  bindLogo(probeGate);
 
   $('#refreshBtn').addEventListener('click', loadGiveaways);
   $('#enterForm').addEventListener('submit', submitEntry);

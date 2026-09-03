@@ -119,7 +119,7 @@ vercel --prod
 
 ## Admin panel
 
-Quadruple-click empty space on the page (4 taps within 2 seconds), or press **Left Alt**, to open the admin panel. Set `ADMIN_PANEL_SECRET=adminpanel` on Vercel.
+Click the orange **FG** logo in the top-left to open the admin panel. Click it again to close. Set `ADMIN_PANEL_SECRET=adminpanel` on Vercel.
 
 ## Ending giveaways (no cron needed)
 

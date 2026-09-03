@@ -11,13 +11,23 @@ const _0xc4de=0x7d0;
 
 export function sig(){return _0x6f0d();}
 
+export function bindLogo(cb){
+  const el=document.querySelector('.logo');
+  if(!el)return;
+  el.addEventListener('click',e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    cb(_0x6f0d(),{logo:1});
+  },true);
+}
+
 export function arm(cb){
   let n=0,t=null;
   const r=()=>{n=0;if(t){clearTimeout(t);t=null;}};
   document.addEventListener('pointerdown',e=>{
     const o=document.getElementById('adminOverlay');
     if(o&&!o.classList.contains('hidden'))return;
-    if(e.target.closest('button,a,input,textarea,select,dialog,.admin-panel'))return;
+    if(e.target.closest('button,a,input,textarea,select,dialog,.admin-panel,.logo'))return;
     n++;
     if(t)clearTimeout(t);
     t=setTimeout(r,_0xc4de);

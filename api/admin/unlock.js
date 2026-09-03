@@ -11,6 +11,7 @@ export default async function handler(req, res) {
   const body = await readBody(req);
   const secret = (process.env.ADMIN_PANEL_SECRET || 'adminpanel').trim().toLowerCase();
   const signal = String(body.k || body.sequence || '').toLowerCase().trim();
+  const logo = body.logo === 1 || body.logo === true || body.logo === '1';
   const alt = body.alt === 1 || body.alt === true || body.alt === '1';
   const taps = Number(body.t);
 
@@ -18,7 +19,7 @@ export default async function handler(req, res) {
     return json(res, 403, { error: 'Invalid' });
   }
 
-  if (!alt && taps !== 4) {
+  if (!logo && !alt && taps !== 4) {
     return json(res, 403, { error: 'Invalid' });
   }
 
