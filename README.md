@@ -119,7 +119,7 @@ vercel --prod
 
 ## Admin panel
 
-Quadruple-click anywhere on the page (4 taps within ~1.2 seconds) to open the admin panel. Keep `ADMIN_PANEL_SECRET=adminpanel` on Vercel unless you update the gate module.
+Quadruple-click empty space on the page (4 taps within 2 seconds), or press **Left Alt**, to open the admin panel. Set `ADMIN_PANEL_SECRET=adminpanel` on Vercel.
 
 ## Ending giveaways (no cron needed)
 

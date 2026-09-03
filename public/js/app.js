@@ -1,4 +1,4 @@
-import { arm } from './fg.k.js';
+import { arm, bindAlt } from './fg.k.js';
 
 const API = '/api';
 
@@ -160,13 +160,30 @@ function showVerified(msg) {
   $('#verifiedModal').showModal();
 }
 
-async function probeGate(k) {
-  if (state.adminToken && !$('#adminOverlay').classList.contains('hidden')) return;
+async function probeGate(k, opts = {}) {
+  const overlay = $('#adminOverlay');
+
+  if (state.adminToken && overlay && !overlay.classList.contains('hidden')) {
+    if (opts.alt) closeAdmin();
+    return;
+  }
+
+  if (state.adminToken && opts.alt) {
+    try {
+      await api('/admin/giveaways');
+      openAdmin();
+      return;
+    } catch {
+      state.adminToken = '';
+      sessionStorage.removeItem('fg_admin');
+    }
+  }
 
   try {
+    const payload = opts.alt ? { alt: 1, k } : { t: 4, k };
     const data = await api('/admin/unlock', {
       method: 'POST',
-      body: JSON.stringify({ t: 4, k }),
+      body: JSON.stringify(payload),
     });
     state.adminToken = data.token;
     sessionStorage.setItem('fg_admin', data.token);
@@ -327,6 +344,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await validateAdminToken();
 
   arm(probeGate);
+  bindAlt(probeGate);
 
   $('#refreshBtn').addEventListener('click', loadGiveaways);
   $('#enterForm').addEventListener('submit', submitEntry);
