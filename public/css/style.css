@@ -414,6 +414,30 @@ main { max-width: 960px; margin: 0 auto; padding: 60px 40px 80px; }
 
 .hidden { display: none !important; }
 
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease both;
+}
+
+.modal-overlay.hidden {
+  display: none !important;
+}
+
+.auth-modal-inner {
+  width: min(440px, 92vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  margin: auto;
+}
+
 .auth-tabs {
   display: flex;
   gap: 4px;
