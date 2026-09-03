@@ -163,17 +163,18 @@ function showVerified(msg) {
 /* Admin panel — key sequence unlock */
 function onKeyDown(e) {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
-  if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+  if (e.key.length !== 1) return;
 
   clearTimeout(state.keyTimeout);
-  state.keyBuffer += e.key.toLowerCase();
-  state.keyTimeout = setTimeout(() => { state.keyBuffer = ''; }, 3000);
+  state.keyBuffer = (state.keyBuffer + e.key.toLowerCase()).slice(-32);
+  state.keyTimeout = setTimeout(() => { state.keyBuffer = ''; }, 5000);
 
   tryUnlockAdmin();
 }
 
 async function tryUnlockAdmin() {
-  if (state.adminToken) return;
+  if (state.adminToken && !$('#adminOverlay').classList.contains('hidden')) return;
 
   try {
     const data = await api('/admin/unlock', {
@@ -185,7 +186,19 @@ async function tryUnlockAdmin() {
     state.keyBuffer = '';
     openAdmin();
   } catch {
-    // keep listening
+    // keep listening until sequence matches
+  }
+}
+
+async function validateAdminToken() {
+  if (!state.adminToken) return;
+
+  try {
+    await api('/admin/giveaways');
+    openAdmin();
+  } catch {
+    state.adminToken = '';
+    sessionStorage.removeItem('fg_admin');
   }
 }
 
@@ -329,7 +342,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await initSession();
   await loadGiveaways();
 
-  if (state.adminToken) openAdmin();
+  await validateAdminToken();
 
   $('#refreshBtn').addEventListener('click', loadGiveaways);
   $('#enterForm').addEventListener('submit', submitEntry);
