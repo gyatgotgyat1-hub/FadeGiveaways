@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FadeGiveaways</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="fade-top" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="logo">
+      <span class="logo-mark">FG</span>
+      <span class="logo-text">FadeGiveaways</span>
+    </div>
+    <div class="user-badge" id="userBadge">
+      <span class="user-label">you are</span>
+      <span class="user-nick" id="nickname">···</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="hero-tag">live drops</p>
+      <h1>Win before it<br /><em>fades</em> away.</h1>
+      <p class="hero-sub">Enter active giveaways below. Verify your email once — we’ll notify you if you win.</p>
+    </section>
+
+    <section class="giveaways-section">
+      <div class="section-head">
+        <h2>Active Giveaways</h2>
+        <button class="btn-ghost" id="refreshBtn" type="button">Refresh</button>
+      </div>
+      <div class="giveaway-grid" id="giveawayGrid">
+        <div class="empty-state" id="emptyState">
+          <p>No active giveaways right now.</p>
+          <span class="empty-hint">Check back soon.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>FadeGiveaways</span>
+    <span class="footer-dot">·</span>
+    <span id="year"></span>
+  </footer>
+
+  <!-- Enter modal -->
+  <dialog class="modal" id="enterModal">
+    <form method="dialog" class="modal-inner" id="enterForm">
+      <button class="modal-close" type="button" id="closeEnterModal" aria-label="Close">&times;</button>
+      <p class="modal-tag">enter giveaway</p>
+      <h3 id="enterModalTitle">Giveaway</h3>
+      <label class="field">
+        <span>Email address</span>
+        <input type="email" id="enterEmail" placeholder="you@email.com" required autocomplete="email" />
+      </label>
+      <div class="modal-actions">
+        <button class="btn-primary" type="submit">Send Verify Email</button>
+      </div>
+      <p class="modal-note" id="enterNote"></p>
+      <div class="verify-row hidden" id="verifyRow">
+        <button class="btn-secondary" type="button" id="refreshVerifyBtn">Refresh Verify</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Verified toast -->
+  <dialog class="modal modal-sm" id="verifiedModal">
+    <div class="modal-inner verified-inner">
+      <div class="verified-icon">✓</div>
+      <h3>Verified</h3>
+      <p id="verifiedMessage">You're in.</p>
+      <button class="btn-primary" type="button" id="closeVerifiedModal">Close</button>
+    </div>
+  </dialog>
+
+  <!-- Admin panel -->
+  <div class="admin-overlay hidden" id="adminOverlay">
+    <div class="admin-panel">
+      <div class="admin-head">
+        <h2>Admin Panel</h2>
+        <button class="modal-close" type="button" id="closeAdmin" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="tab active" data-tab="create" type="button">Create</button>
+        <button class="tab" data-tab="manage" type="button">Manage</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-create">
+        <form id="createForm" class="admin-form">
+          <label class="field">
+            <span>Name</span>
+            <input type="text" id="gName" required placeholder="Summer Key Drop" />
+          </label>
+          <label class="field">
+            <span>Description</span>
+            <textarea id="gDesc" rows="3" placeholder="What's up for grabs?"></textarea>
+          </label>
+          <label class="field">
+            <span>Vouch Giveaway</span>
+            <input type="text" id="gVouch" placeholder="Trusted by @someone — optional" />
+          </label>
+          <label class="field">
+            <span>Duration (minutes)</span>
+            <input type="number" id="gDuration" min="1" value="60" required />
+          </label>
+          <label class="field">
+            <span>Set Giveaway Download Link</span>
+            <input type="url" id="gDownload" required placeholder="https://..." />
+          </label>
+          <label class="field">
+            <span>Set Giveaway Keys (one per line)</span>
+            <textarea id="gKeys" rows="4" placeholder="XXXXX-XXXXX&#10;YYYYY-YYYYY"></textarea>
+          </label>
+          <button class="btn-primary" type="submit">Create Giveaway</button>
+        </form>
+      </div>
+
+      <div class="tab-panel" id="tab-manage">
+        <div id="adminGiveawayList" class="admin-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js" type="module"></script>
+</body>
+</html>
