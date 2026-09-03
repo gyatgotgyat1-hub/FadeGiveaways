@@ -116,8 +116,8 @@
     <span id="year"></span>
   </footer>
 
-  <dialog class="modal" id="authModal">
-    <div class="modal-inner">
+  <div class="modal-overlay hidden" id="authModal">
+    <div class="modal-inner auth-modal-inner">
       <button class="modal-close" type="button" id="closeAuthModal" aria-label="Close">&times;</button>
       <div class="auth-tabs">
         <button class="auth-tab active" type="button" data-auth="login">Log In</button>
@@ -152,7 +152,7 @@
         <button class="btn-primary" type="submit">Create Account</button>
       </form>
     </div>
-  </dialog>
+  </div>
 
   <dialog class="modal" id="enterModal">
     <form method="dialog" class="modal-inner" id="enterForm">

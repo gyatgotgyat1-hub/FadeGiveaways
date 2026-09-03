@@ -27,16 +27,20 @@ async function api(path, opts = {}) {
 }
 
 async function initSession() {
-  const headers = {};
-  if (state.sessionId) headers['X-Session-Id'] = state.sessionId;
+  try {
+    const headers = {};
+    if (state.sessionId) headers['X-Session-Id'] = state.sessionId;
 
-  const res = await fetch(`${API}/session`, { headers });
-  const data = await res.json();
+    const res = await fetch(`${API}/session`, { headers });
+    const data = await res.json();
 
-  state.sessionId = data.sessionId;
-  state.nickname = data.nickname;
-  localStorage.setItem('fg_session', state.sessionId);
-  $('#nickname').textContent = state.nickname;
+    state.sessionId = data.sessionId;
+    state.nickname = data.nickname;
+    localStorage.setItem('fg_session', state.sessionId);
+    $('#nickname').textContent = state.nickname;
+  } catch {
+    $('#nickname').textContent = 'guest';
+  }
 }
 
 async function initAuth() {
@@ -80,7 +84,13 @@ function openAuthModal(mode = 'login') {
   setAuthMode(mode);
   $('#loginError').classList.add('hidden');
   $('#signupError').classList.add('hidden');
-  $('#authModal').showModal();
+  $('#authModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAuthModal() {
+  $('#authModal').classList.add('hidden');
+  document.body.style.overflow = '';
 }
 
 function setAuthMode(mode) {
@@ -107,7 +117,7 @@ async function submitLogin(e) {
     state.authToken = data.token;
     state.user = data.user;
     localStorage.setItem('fg_auth', data.token);
-    $('#authModal').close();
+    closeAuthModal();
     updateAuthUI();
     if (state.user.isAdmin) {
       switchView('admin');
@@ -135,7 +145,7 @@ async function submitSignup(e) {
     state.authToken = data.token;
     state.user = data.user;
     localStorage.setItem('fg_auth', data.token);
-    $('#authModal').close();
+    closeAuthModal();
     updateAuthUI();
     if (state.user.isAdmin) {
       switchView('admin');
@@ -415,17 +425,16 @@ function tickTimers() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
   $('#year').textContent = new Date().getFullYear();
-
-  await initSession();
-  await initAuth();
-  await loadGiveaways();
 
   $('#refreshBtn').addEventListener('click', loadGiveaways);
   $('#loginBtn').addEventListener('click', () => openAuthModal('login'));
   $('#signupBtn').addEventListener('click', () => openAuthModal('signup'));
-  $('#closeAuthModal').addEventListener('click', () => $('#authModal').close());
+  $('#closeAuthModal').addEventListener('click', closeAuthModal);
+  $('#authModal').addEventListener('click', (e) => {
+    if (e.target === $('#authModal')) closeAuthModal();
+  });
   $('#loginForm').addEventListener('submit', submitLogin);
   $('#signupForm').addEventListener('submit', submitSignup);
   $('#logoutBtn').addEventListener('click', logout);
@@ -453,4 +462,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   setInterval(tickTimers, 1000);
   setInterval(loadGiveaways, 30000);
+
+  initSession();
+  initAuth();
+  loadGiveaways();
 });
