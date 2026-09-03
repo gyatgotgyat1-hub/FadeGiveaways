@@ -313,6 +313,11 @@ function switchTab(name) {
 async function createGiveaway(e) {
   e.preventDefault();
 
+  if (!state.user?.isAdmin) {
+    alert('Admin access required. Log in as Admin000.');
+    return;
+  }
+
   try {
     await api('/admin/giveaways', {
       method: 'POST',
@@ -320,7 +325,7 @@ async function createGiveaway(e) {
         name: $('#gName').value.trim(),
         description: $('#gDesc').value.trim(),
         vouch: $('#gVouch').value.trim(),
-        durationMinutes: $('#gDuration').value,
+        durationMinutes: Number($('#gDuration').value) || 60,
         downloadLink: $('#gDownload').value.trim(),
         keysText: $('#gKeys').value,
       }),
@@ -334,7 +339,7 @@ async function createGiveaway(e) {
     await loadAdminGiveaways();
     await loadGiveaways();
   } catch (err) {
-    alert(err.message);
+    alert(err.message || 'Failed to create giveaway');
   }
 }
 

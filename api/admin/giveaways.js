@@ -36,17 +36,22 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const body = await readBody(req);
-    if (!body.name || !body.downloadLink) {
-      return json(res, 400, { error: 'Name and download link required' });
+    try {
+      const body = await readBody(req);
+      if (!body.name || !body.downloadLink) {
+        return json(res, 400, { error: 'Name and download link required' });
+      }
+
+      const giveaway = createGiveaway(body);
+      const list = await getAllGiveaways();
+      list.push(giveaway);
+      await saveGiveaways(list);
+
+      return json(res, 201, { giveaway: { id: giveaway.id, name: giveaway.name } });
+    } catch (err) {
+      console.error('Create giveaway error:', err);
+      return json(res, 500, { error: 'Failed to save giveaway. Check Upstash Redis is configured.' });
     }
-
-    const giveaway = createGiveaway(body);
-    const list = await getAllGiveaways();
-    list.push(giveaway);
-    await saveGiveaways(list);
-
-    return json(res, 201, { giveaway: { id: giveaway.id, name: giveaway.name } });
   }
 
   return json(res, 405, { error: 'Method not allowed' });
