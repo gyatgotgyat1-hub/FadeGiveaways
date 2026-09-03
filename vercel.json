@@ -4,11 +4,5 @@
   "outputDirectory": "public",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/end-giveaways",
-      "schedule": "* * * * *"
-    }
   ]
 }

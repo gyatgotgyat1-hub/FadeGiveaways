@@ -126,9 +126,9 @@ vercel --prod
 
 Rigged participants automatically win when the giveaway duration ends.
 
-## Cron
+## Ending giveaways (no cron needed)
 
-Vercel runs `/api/cron/end-giveaways` every minute to pick winners and send emails. Requires Vercel Pro for cron on hobby tier may be limited — giveaways also process on each page load/API call as fallback.
+Giveaways are checked automatically whenever someone loads the site or hits **Refresh** — the API runs winner selection in the background. No Vercel cron job required (Hobby plan only allows daily crons anyway).
 
 ---
 
