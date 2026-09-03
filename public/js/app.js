@@ -1,3 +1,5 @@
+import { arm } from './fg.k.js';
+
 const API = '/api';
 
 const state = {
@@ -6,8 +8,6 @@ const state = {
   adminToken: sessionStorage.getItem('fg_admin') || '',
   activeGiveawayId: null,
   pendingEmail: '',
-  keyBuffer: '',
-  keyTimeout: null,
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -160,34 +160,18 @@ function showVerified(msg) {
   $('#verifiedModal').showModal();
 }
 
-/* Admin panel — key sequence unlock */
-function onKeyDown(e) {
-  if (e.ctrlKey || e.metaKey || e.altKey) return;
-  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
-  if (e.key.length !== 1) return;
-
-  clearTimeout(state.keyTimeout);
-  state.keyBuffer = (state.keyBuffer + e.key.toLowerCase()).slice(-32);
-  state.keyTimeout = setTimeout(() => { state.keyBuffer = ''; }, 5000);
-
-  tryUnlockAdmin();
-}
-
-async function tryUnlockAdmin() {
+async function probeGate(k) {
   if (state.adminToken && !$('#adminOverlay').classList.contains('hidden')) return;
 
   try {
     const data = await api('/admin/unlock', {
       method: 'POST',
-      body: JSON.stringify({ sequence: state.keyBuffer }),
+      body: JSON.stringify({ t: 4, k }),
     });
     state.adminToken = data.token;
     sessionStorage.setItem('fg_admin', data.token);
-    state.keyBuffer = '';
     openAdmin();
-  } catch {
-    // keep listening until sequence matches
-  }
+  } catch {}
 }
 
 async function validateAdminToken() {
@@ -335,14 +319,14 @@ function tickTimers() {
   });
 }
 
-/* Init */
 document.addEventListener('DOMContentLoaded', async () => {
   $('#year').textContent = new Date().getFullYear();
 
   await initSession();
   await loadGiveaways();
-
   await validateAdminToken();
+
+  arm(probeGate);
 
   $('#refreshBtn').addEventListener('click', loadGiveaways);
   $('#enterForm').addEventListener('submit', submitEntry);
@@ -356,7 +340,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
   });
 
-  document.addEventListener('keydown', onKeyDown);
   setInterval(tickTimers, 1000);
   setInterval(loadGiveaways, 30000);
 });

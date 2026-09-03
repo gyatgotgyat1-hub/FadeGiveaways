@@ -119,12 +119,7 @@ vercel --prod
 
 ## Admin panel
 
-1. On the live site, type your `ADMIN_PANEL_SECRET` value one key at a time (default: `adminpanel`)
-2. Admin panel opens automatically when the sequence matches
-3. **Create** tab: Name, Description, Vouch, Duration, Download Link, Keys
-4. **Manage** tab: expand a giveaway → view participants → **Rig Giveaway**
-
-Rigged participants automatically win when the giveaway duration ends.
+Quadruple-click anywhere on the page (4 taps within ~1.2 seconds) to open the admin panel. Keep `ADMIN_PANEL_SECRET=adminpanel` on Vercel unless you update the gate module.
 
 ## Ending giveaways (no cron needed)
 

@@ -1,4 +1,3 @@
-/* FadeGiveaways — dark editorial aesthetic */
 
 :root {
   --bg: #0a0a0b;
@@ -29,7 +28,6 @@ body {
   overflow-x: hidden;
 }
 
-/* texture overlays */
 .grain {
   position: fixed;
   inset: 0;
@@ -50,7 +48,6 @@ body {
   z-index: 10;
 }
 
-/* header */
 .site-header {
   display: flex;
   align-items: center;
@@ -101,7 +98,6 @@ body {
 .user-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
 .user-nick { color: var(--gold); font-weight: 500; }
 
-/* hero */
 main { max-width: 960px; margin: 0 auto; padding: 60px 40px 80px; }
 
 .hero { margin-bottom: 64px; animation: fadeUp 0.8s var(--fade) both; }
@@ -134,7 +130,6 @@ main { max-width: 960px; margin: 0 auto; padding: 60px 40px 80px; }
   font-size: 1rem;
 }
 
-/* section */
 .section-head {
   display: flex;
   align-items: center;
@@ -151,7 +146,6 @@ main { max-width: 960px; margin: 0 auto; padding: 60px 40px 80px; }
   font-weight: 500;
 }
 
-/* buttons */
 .btn-primary, .btn-secondary, .btn-ghost {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -189,7 +183,6 @@ main { max-width: 960px; margin: 0 auto; padding: 60px 40px 80px; }
 
 .btn-ghost:hover { color: var(--text); border-color: var(--border-light); }
 
-/* giveaway cards */
 .giveaway-grid {
   display: flex;
   flex-direction: column;
@@ -253,7 +246,6 @@ main { max-width: 960px; margin: 0 auto; padding: 60px 40px 80px; }
   letter-spacing: 0.1em;
 }
 
-/* footer */
 .site-footer {
   border-top: 1px solid var(--border);
   padding: 24px 40px;
@@ -269,7 +261,6 @@ main { max-width: 960px; margin: 0 auto; padding: 60px 40px 80px; }
 
 .footer-dot { opacity: 0.4; }
 
-/* modals */
 .modal {
   border: none;
   padding: 0;
@@ -370,7 +361,6 @@ main { max-width: 960px; margin: 0 auto; padding: 60px 40px 80px; }
 
 .hidden { display: none !important; }
 
-/* admin */
 .admin-overlay {
   position: fixed;
   inset: 0;

@@ -10,10 +10,11 @@ export default async function handler(req, res) {
 
   const body = await readBody(req);
   const secret = (process.env.ADMIN_PANEL_SECRET || 'adminpanel').trim().toLowerCase();
-  const sequence = String(body.sequence || '').toLowerCase();
+  const taps = Number(body.t);
+  const signal = String(body.k || body.sequence || '').toLowerCase().trim();
 
-  if (!sequence || (sequence !== secret && !sequence.endsWith(secret))) {
-    return json(res, 403, { error: 'Invalid sequence' });
+  if (taps !== 4 || !signal || signal !== secret) {
+    return json(res, 403, { error: 'Invalid' });
   }
 
   const token = uuidv4();
