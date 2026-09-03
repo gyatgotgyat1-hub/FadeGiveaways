@@ -52,6 +52,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
   padding: 28px 40px;
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -59,7 +60,57 @@ body {
   background: rgba(10, 10, 11, 0.85);
   backdrop-filter: blur(12px);
   z-index: 100;
+  flex-wrap: wrap;
 }
+
+.site-nav {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-tab {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s var(--fade);
+}
+
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.auth-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-user {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--gold);
+}
+
+.btn-sm {
+  padding: 10px 16px;
+}
+
+.view { display: block; }
+.view.hidden { display: none !important; }
 
 .logo {
   display: flex;
@@ -363,24 +414,37 @@ main { max-width: 960px; margin: 0 auto; padding: 60px 40px 80px; }
 
 .hidden { display: none !important; }
 
-.admin-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 1000;
+.auth-tabs {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  animation: fadeIn 0.25s ease both;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
 }
 
-.admin-panel {
+.auth-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.auth-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+.auth-form .btn-primary { width: 100%; margin-top: 8px; }
+
+.auth-error { color: var(--accent) !important; }
+
+.admin-page {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
-  width: min(640px, 96vw);
-  max-height: 90vh;
-  overflow-y: auto;
+  animation: fadeUp 0.4s var(--fade) both;
 }
 
 .admin-head {
@@ -515,4 +579,6 @@ main { max-width: 960px; margin: 0 auto; padding: 60px 40px 80px; }
   .site-header, main, .site-footer { padding-left: 20px; padding-right: 20px; }
   .giveaway-card { grid-template-columns: 1fr; }
   .user-label { display: none; }
+  .site-nav { order: 3; width: 100%; justify-content: flex-start; }
+  .header-actions { margin-left: auto; }
 }

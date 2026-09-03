@@ -8,8 +8,9 @@ Live giveaway site with email verification, secret admin panel, and automatic wi
 - Active giveaways with countdown timers
 - Email verification flow (Verify Join → Refresh Verify → Verified)
 - Winner emails with download link + keys
-- Secret admin panel (type your env-configured phrase key-by-key)
-- Admin: create giveaways, view participants, rig winners
+- Sign up / log in accounts
+- Admin via username `Admin000` (first signup only — duplicate shows "Already taken")
+- Admin Panel tab for admin users
 
 ## Local dev
 
@@ -74,27 +75,11 @@ Link to your GitHub repo when prompted for continuous deployment.
 
 | Variable | Description |
 |---|---|
-| `ADMIN_PANEL_SECRET` | Phrase typed key-by-key to open admin panel (e.g. `adminpanel`) |
-| `UPSTASH_REDIS_REST_URL` | From https://console.upstash.com (free Redis) |
+| `UPSTASH_REDIS_REST_URL` | From https://console.upstash.com (free Redis) — **required for accounts** |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash REST token |
 | `RESEND_API_KEY` | From https://resend.com |
 | `EMAIL_FROM` | Verified sender, e.g. `FadeGiveaways <giveaways@yourdomain.com>` |
 | `SITE_URL` | Your live URL, e.g. `https://fade-giveaways.vercel.app` |
-| `ADMIN_COOKIE_SECRET` | Random string (`openssl rand -hex 32`) |
-
-**Set `ADMIN_PANEL_SECRET` in PowerShell before deploying locally:**
-
-```powershell
-# In .env.local for local dev:
-"ADMIN_PANEL_SECRET=mysecretphrase" | Out-File -Append .env.local -Encoding utf8
-```
-
-**Set on Vercel via CLI:**
-
-```powershell
-vercel env add ADMIN_PANEL_SECRET production
-# Paste your secret when prompted, e.g. mysecretphrase
-```
 
 Repeat for each variable, or set them all in the Vercel dashboard.
 
@@ -119,7 +104,12 @@ vercel --prod
 
 ## Admin panel
 
-Click the orange **FG** logo in the top-left to open the admin panel. Click it again to close. Set `ADMIN_PANEL_SECRET=adminpanel` on Vercel.
+1. Click **Sign Up** and create an account with username **`Admin000`** (exact caps) and any password
+2. Only **one** `Admin000` account can exist — a second signup shows **Already taken**
+3. Log in as `Admin000` → an **Admin Panel** tab appears in the nav
+4. Use **Create** / **Manage** to run giveaways, view participants, and rig winners
+
+Regular usernames (not `Admin000`) are normal accounts with no admin access.
 
 ## Ending giveaways (no cron needed)
 

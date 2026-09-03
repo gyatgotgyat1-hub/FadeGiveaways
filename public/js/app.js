@@ -1,13 +1,13 @@
-import { arm, bindAlt, bindLogo } from './fg.k.js';
-
 const API = '/api';
 
 const state = {
   sessionId: localStorage.getItem('fg_session') || '',
   nickname: '',
-  adminToken: sessionStorage.getItem('fg_admin') || '',
+  authToken: localStorage.getItem('fg_auth') || '',
+  user: null,
   activeGiveawayId: null,
   pendingEmail: '',
+  currentView: 'giveaways',
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -18,7 +18,7 @@ async function api(path, opts = {}) {
     ...(opts.headers || {}),
   };
   if (state.sessionId) headers['X-Session-Id'] = state.sessionId;
-  if (state.adminToken) headers['Authorization'] = `Bearer ${state.adminToken}`;
+  if (state.authToken) headers['Authorization'] = `Bearer ${state.authToken}`;
 
   const res = await fetch(`${API}${path}`, { ...opts, headers });
   const data = await res.json().catch(() => ({}));
@@ -37,6 +37,137 @@ async function initSession() {
   state.nickname = data.nickname;
   localStorage.setItem('fg_session', state.sessionId);
   $('#nickname').textContent = state.nickname;
+}
+
+async function initAuth() {
+  if (!state.authToken) {
+    updateAuthUI();
+    return;
+  }
+
+  try {
+    const data = await api('/auth/me');
+    state.user = data.user;
+    if (!state.user) {
+      state.authToken = '';
+      localStorage.removeItem('fg_auth');
+    }
+  } catch {
+    state.authToken = '';
+    state.user = null;
+    localStorage.removeItem('fg_auth');
+  }
+
+  updateAuthUI();
+}
+
+function updateAuthUI() {
+  const isLoggedIn = !!state.user;
+  $('#authActions').classList.toggle('hidden', isLoggedIn);
+  $('#loggedInActions').classList.toggle('hidden', !isLoggedIn);
+  $('#adminNavTab').classList.toggle('hidden', !state.user?.isAdmin);
+
+  if (isLoggedIn) {
+    $('#authUsername').textContent = state.user.username;
+  }
+
+  if (!state.user?.isAdmin && state.currentView === 'admin') {
+    switchView('giveaways');
+  }
+}
+
+function openAuthModal(mode = 'login') {
+  setAuthMode(mode);
+  $('#loginError').classList.add('hidden');
+  $('#signupError').classList.add('hidden');
+  $('#authModal').showModal();
+}
+
+function setAuthMode(mode) {
+  document.querySelectorAll('.auth-tab').forEach((t) => {
+    t.classList.toggle('active', t.dataset.auth === mode);
+  });
+  $('#loginForm').classList.toggle('hidden', mode !== 'login');
+  $('#signupForm').classList.toggle('hidden', mode !== 'signup');
+}
+
+async function submitLogin(e) {
+  e.preventDefault();
+  const errEl = $('#loginError');
+  errEl.classList.add('hidden');
+
+  try {
+    const data = await api('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: $('#loginUsername').value.trim(),
+        password: $('#loginPassword').value,
+      }),
+    });
+    state.authToken = data.token;
+    state.user = data.user;
+    localStorage.setItem('fg_auth', data.token);
+    $('#authModal').close();
+    updateAuthUI();
+    if (state.user.isAdmin) {
+      switchView('admin');
+      loadAdminGiveaways();
+    }
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.classList.remove('hidden');
+  }
+}
+
+async function submitSignup(e) {
+  e.preventDefault();
+  const errEl = $('#signupError');
+  errEl.classList.add('hidden');
+
+  try {
+    const data = await api('/auth/signup', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: $('#signupUsername').value.trim(),
+        password: $('#signupPassword').value,
+      }),
+    });
+    state.authToken = data.token;
+    state.user = data.user;
+    localStorage.setItem('fg_auth', data.token);
+    $('#authModal').close();
+    updateAuthUI();
+    if (state.user.isAdmin) {
+      switchView('admin');
+      loadAdminGiveaways();
+    }
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.classList.remove('hidden');
+  }
+}
+
+async function logout() {
+  try {
+    await api('/auth/me', { method: 'DELETE' });
+  } catch {}
+  state.authToken = '';
+  state.user = null;
+  localStorage.removeItem('fg_auth');
+  switchView('giveaways');
+  updateAuthUI();
+}
+
+function switchView(name) {
+  state.currentView = name;
+  document.querySelectorAll('.nav-tab').forEach((t) => {
+    t.classList.toggle('active', t.dataset.view === name);
+  });
+  $('#view-giveaways').classList.toggle('hidden', name !== 'giveaways');
+  $('#view-giveaways').classList.toggle('active', name === 'giveaways');
+  $('#view-admin').classList.toggle('hidden', name !== 'admin');
+  $('#view-admin').classList.toggle('active', name === 'admin');
+  if (name === 'admin') loadAdminGiveaways();
 }
 
 function formatTimeLeft(ms) {
@@ -160,63 +291,11 @@ function showVerified(msg) {
   $('#verifiedModal').showModal();
 }
 
-async function probeGate(k, opts = {}) {
-  const overlay = $('#adminOverlay');
-  const toggle = opts.logo || opts.alt;
-
-  if (state.adminToken && overlay && !overlay.classList.contains('hidden')) {
-    if (toggle) closeAdmin();
-    return;
-  }
-
-  if (opts.logo) {
-    state.adminToken = k;
-    sessionStorage.setItem('fg_admin', k);
-    openAdmin();
-    return;
-  }
-
-  const payload = { k };
-  if (opts.alt) payload.alt = 1;
-  else payload.t = 4;
-
-  try {
-    const data = await api('/admin/unlock', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-    state.adminToken = data.token;
-    sessionStorage.setItem('fg_admin', data.token);
-    openAdmin();
-  } catch {}
-}
-
-async function validateAdminToken() {
-  if (!state.adminToken) return;
-
-  try {
-    await api('/admin/giveaways');
-    openAdmin();
-  } catch {
-    state.adminToken = '';
-    sessionStorage.removeItem('fg_admin');
-  }
-}
-
-function openAdmin() {
-  $('#adminOverlay').classList.remove('hidden');
-  loadAdminGiveaways();
-}
-
-function closeAdmin() {
-  $('#adminOverlay').classList.add('hidden');
-}
-
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t) => {
+  document.querySelectorAll('#view-admin .tab').forEach((t) => {
     t.classList.toggle('active', t.dataset.tab === name);
   });
-  document.querySelectorAll('.tab-panel').forEach((p) => {
+  document.querySelectorAll('#view-admin .tab-panel').forEach((p) => {
     p.classList.toggle('active', p.id === `tab-${name}`);
   });
 }
@@ -240,8 +319,8 @@ async function createGiveaway(e) {
     $('#createForm').reset();
     $('#gDuration').value = '60';
     switchTab('manage');
-    document.querySelector('[data-tab="manage"]').classList.add('active');
-    document.querySelector('[data-tab="create"]').classList.remove('active');
+    document.querySelector('#view-admin [data-tab="manage"]').classList.add('active');
+    document.querySelector('#view-admin [data-tab="create"]').classList.remove('active');
     await loadAdminGiveaways();
     await loadGiveaways();
   } catch (err) {
@@ -250,7 +329,7 @@ async function createGiveaway(e) {
 }
 
 async function loadAdminGiveaways() {
-  if (!state.adminToken) return;
+  if (!state.user?.isAdmin) return;
 
   try {
     const { giveaways } = await api('/admin/giveaways');
@@ -323,8 +402,8 @@ async function loadAdminGiveaways() {
     });
   } catch (err) {
     if (err.message.includes('Admin')) {
-      state.adminToken = '';
-      sessionStorage.removeItem('fg_admin');
+      state.user = { ...state.user, isAdmin: false };
+      updateAuthUI();
     }
   }
 }
@@ -340,22 +419,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('#year').textContent = new Date().getFullYear();
 
   await initSession();
+  await initAuth();
   await loadGiveaways();
-  await validateAdminToken();
-
-  arm(probeGate);
-  bindAlt(probeGate);
-  bindLogo(probeGate);
 
   $('#refreshBtn').addEventListener('click', loadGiveaways);
+  $('#loginBtn').addEventListener('click', () => openAuthModal('login'));
+  $('#signupBtn').addEventListener('click', () => openAuthModal('signup'));
+  $('#closeAuthModal').addEventListener('click', () => $('#authModal').close());
+  $('#loginForm').addEventListener('submit', submitLogin);
+  $('#signupForm').addEventListener('submit', submitSignup);
+  $('#logoutBtn').addEventListener('click', logout);
+
+  document.querySelectorAll('.auth-tab').forEach((tab) => {
+    tab.addEventListener('click', () => setAuthMode(tab.dataset.auth));
+  });
+
+  document.querySelectorAll('.nav-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      if (tab.dataset.view === 'admin' && !state.user?.isAdmin) return;
+      switchView(tab.dataset.view);
+    });
+  });
+
   $('#enterForm').addEventListener('submit', submitEntry);
   $('#closeEnterModal').addEventListener('click', () => $('#enterModal').close());
   $('#refreshVerifyBtn').addEventListener('click', refreshVerify);
   $('#closeVerifiedModal').addEventListener('click', () => $('#verifiedModal').close());
-  $('#closeAdmin').addEventListener('click', closeAdmin);
   $('#createForm').addEventListener('submit', createGiveaway);
 
-  document.querySelectorAll('.tab').forEach((tab) => {
+  document.querySelectorAll('#view-admin .tab').forEach((tab) => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
   });
 
